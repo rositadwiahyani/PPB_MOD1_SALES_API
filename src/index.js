@@ -9,6 +9,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use("/api/transactions", transactionRoutes);
 
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
