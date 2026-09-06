@@ -8,14 +8,16 @@ import transactionRoutes from "./routes/transactionRoutes.js";
 dotenv.config();
 
 const app = express();
+
 app.use(express.json());
-app.use("/api/transactions", transactionRoutes);
 
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/customers", customerRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 const port = process.env.PORT || 3000;
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

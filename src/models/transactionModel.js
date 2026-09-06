@@ -4,7 +4,7 @@ export const TransactionModel = {
   async create(payload) {
     const { customer_id, product_id, quantity } = payload;
 
-    // 1. Cek ketersediaan produk beserta harga dan stoknya
+    // 1. Ambil data produk untuk cek stok & harga
     const { data: product, error: productError } = await supabase
       .from("products")
       .select("price, stock")
@@ -12,16 +12,16 @@ export const TransactionModel = {
       .single();
 
     if (productError) throw productError;
-    
-    // Validasi stok
+
+    // 2. Validasi apakah stok mencukupi
     if (product.stock < quantity) {
       throw new Error("Stok produk tidak mencukupi untuk transaksi ini");
     }
 
-    // 2. Hitung total harga
+    // 3. Hitung total harga
     const total_price = product.price * quantity;
 
-    // 3. Update (kurangi) stok produk di database
+    // 4. Kurangi stok produk di database
     const { error: updateError } = await supabase
       .from("products")
       .update({ stock: product.stock - quantity })
@@ -29,7 +29,7 @@ export const TransactionModel = {
 
     if (updateError) throw updateError;
 
-    // 4. Masukkan data ke tabel transaksi
+    // 5. Masukkan data ke tabel transactions
     const { data: transaction, error: transactionError } = await supabase
       .from("transactions")
       .insert([{ customer_id, product_id, quantity, total_price }])
@@ -41,7 +41,6 @@ export const TransactionModel = {
   },
 
   async getAll() {
-    // Menampilkan transaksi beserta nama customer dan nama produk (Join table)
     const { data, error } = await supabase
       .from("transactions")
       .select(`
